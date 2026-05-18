@@ -1,6 +1,8 @@
 # Surf Report API
 
-Original Documentation for API: [PDF](surfreportapi_undocumented.pdf)
+Original source for fake API: [idwratherbewriting.com/learnapidoc](https://idratherbewriting.com/learnapidoc/docapis_new_endpoint_to_doc.html#surf_report_api)
+
+Original Documentation for API: [PDF](surfreportapi_unformatted.pdf)
 
 What follows is my rewriting of the above documentation.
 
