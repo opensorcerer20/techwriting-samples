@@ -1,0 +1,230 @@
+# Recipe Finder API
+
+## Overview
+
+The `/recipes` endpoint was created to allow a request for a list of recipes or an individual recipe by ID.
+
+---
+
+## Request
+
+> ⚠️ **A valid API key is required in your request header.**
+
+Base URL to request a list of recipes:
+
+```
+/recipes
+```
+
+Base URL to request a specific recipe by ID:
+
+```
+/recipes/{recipeId}
+```
+
+### Parameters
+
+All parameters are case-sensitive and should be passed in lowercase unless otherwise noted. Parameters do not affect requesting a recipe by ID.
+
+| Parameter | Description | Valid values | Default | Required |
+|-----------|-------------|--------------|---------|----------|
+| `cuisine` | Filter by cuisine type. Not case-sensitive. | e.g. `italian`, `mexican`, `japanese` | — | No |
+| `diet` | Filter by dietary restriction. | `vegetarian`, `vegan`, `glutenfree` | — | No |
+| `maxTime` | Maximum total recipe time in minutes. | Any integer greater than `0` | — | No |
+| `servings` | Filter by number of servings. | Any integer greater than `0` | Recipe default | No |
+| `page` | Page number in result set. | Any integer within range of available pages | `1` | No |
+
+Example URL using all parameters:
+
+```
+/recipes?cuisine=japanese&diet=glutenfree&maxTime=30&servings=4&page=2
+```
+
+---
+
+## Response
+
+### Recipe Listing
+
+Results are sorted by relevance. Ingredient units are specified with each recipe and are not normalized, nor can they be converted. Results are paginated with a default page length of 10. Ingredients and instructions are omitted from listing results.
+
+| Field | Description |
+|-------|-------------|
+| `results` | Array of recipe summary objects |
+| `results.id` | Recipe ID |
+| `results.name` | Recipe name |
+| `results.prepTime` | Preparation time in minutes |
+| `results.cookTime` | Cook time in minutes |
+| `results.totalTime` | Total time in minutes. Includes `prepTime` and `cookTime`, but may also include additional time such as marinating or resting. |
+| `results.servings` | Number of servings |
+| `results.cuisine` | Cuisine type |
+| `results.diet` | Array of zero or more diet types |
+| `results.nutrition` | Nutrition information. Not always present. |
+| `results.nutrition.calories` | Calories per serving |
+| `results.nutrition.protein` | Protein per serving |
+| `results.nutrition.fat` | Fat per serving |
+| `total` | Total number of results |
+| `pages` | Total number of pages of results |
+
+```json
+{
+  "results": [
+    {
+      "id": 982,
+      "name": "Spaghetti Carbonara",
+      "prepTime": 10,
+      "cookTime": 20,
+      "totalTime": 30,
+      "servings": 4,
+      "cuisine": "italian",
+      "diet": [],
+      "nutrition": {
+        "calories": 620,
+        "protein": "28g",
+        "fat": "22g"
+      }
+    }
+  ],
+  "total": 1,
+  "page": 1
+}
+```
+
+### Specific Recipe
+
+When requesting a recipe by ID, ingredients and instructions are included.
+
+| Field | Description |
+|-------|-------------|
+| `id` | Recipe ID |
+| `name` | Recipe name |
+| `prepTime` | Preparation time in minutes |
+| `cookTime` | Cook time in minutes |
+| `totalTime` | Total time in minutes. Includes `prepTime` and `cookTime`, but may also include additional time such as marinating or resting. |
+| `servings` | Number of servings |
+| `cuisine` | Cuisine type |
+| `diet` | Array of zero or more diet types |
+| `ingredients` | Array of zero or more ingredients. Units are as submitted and are not normalized. |
+| `instructions` | Array of zero or more instruction steps |
+| `nutrition` | Nutrition information. Not always present. |
+| `nutrition.calories` | Calories per serving |
+| `nutrition.protein` | Protein per serving |
+| `nutrition.fat` | Fat per serving |
+
+```json
+{
+  "id": 982,
+  "name": "Spaghetti Carbonara",
+  "prepTime": 10,
+  "cookTime": 20,
+  "totalTime": 30,
+  "servings": 4,
+  "cuisine": "italian",
+  "diet": [],
+  "ingredients": [
+    "200g spaghetti",
+    "100g pancetta",
+    "2 large eggs",
+    "50g pecorino cheese",
+    "black pepper to taste"
+  ],
+  "instructions": [
+    "Boil the spaghetti until al dente.",
+    "Fry the pancetta until crispy.",
+    "Mix eggs and cheese in a bowl.",
+    "Combine all ingredients off the heat."
+  ],
+  "nutrition": {
+    "calories": 620,
+    "protein": "28g",
+    "fat": "22g"
+  }
+}
+```
+
+---
+
+## Response Error Codes
+
+| Code | Description |
+|------|-------------|
+| `400` | Request not valid or not in valid format — please review for errors |
+| `404` | Recipe not found |
+
+---
+
+## Pending Documentation
+
+- Additional error codes
+- Request limit per hour
+- Sorting by time (shortest recipe first)
+
+---
+
+## Edge Cases
+
+The following will produce a `400` error:
+
+- Empty value for `cuisine`
+- Unsupported `cuisine` value
+- Empty value for `diet`
+- Unsupported `diet` value
+- `page` out of range (less than `1` or greater than total number of pages in results)
+- `maxTime` less than or equal to `0`
+- `servings` less than or equal to `0`
+
+### Cases Where Behavior Is Unknown
+
+- Maximum requests per hour exceeded
+- Invalid API key provided
+- No API key in request header
+
+---
+
+## Use Cases
+
+### Use Case 1
+
+Find Japanese vegetarian recipes that serve 2.
+
+```
+/recipes?cuisine=japanese&diet=vegetarian&servings=2
+```
+
+### Use Case 2
+
+Find Italian recipes that can be completed in 30 minutes or less.
+
+```
+/recipes?cuisine=italian&maxTime=30
+```
+
+### Use Case 3
+
+Request recipe with ID `123`.
+
+```
+/recipes/123
+```
+
+Sample response:
+
+```json
+{
+  "id": 123,
+  "name": "Spaghetti",
+  "prepTime": 10,
+  "cookTime": 20,
+  "totalTime": 30,
+  "servings": 4,
+  "cuisine": "italian",
+  "diet": [],
+  "ingredients": [
+    "200g spaghetti"
+  ],
+  "instructions": [
+    "Boil the spaghetti until al dente.",
+    "Add marinara sauce as needed."
+  ]
+}
+```
