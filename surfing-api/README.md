@@ -1,5 +1,9 @@
 # Surf Report API
 
+Original Documentation for API: [PDF](surfreportapi_undocumented.pdf)
+
+What follows is my rewriting of the above documentation.
+
 ## Overview
 
 We have added an API endpoint for surfers who want to check things like tide and wave conditions to determine whether they should head out to their favorite beach to surf. The new endpoint is `/surfreport/{beachId}`. The `{beachId}` is retrieved from a list of beaches on our site.
